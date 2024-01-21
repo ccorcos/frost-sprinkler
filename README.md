@@ -14,9 +14,9 @@ npm install -g add-to-systemd
 add-to-systemd frost-sprinkler "$(which npm) start"
 
 # start
-sudo systemctl start weather.service
+sudo systemctl start frost-sprinkler.service
 
 # check the logs
-sudo systemctl status weather.service
-journalctl -f -u weather.service
+sudo systemctl status frost-sprinkler.service
+journalctl -f -u frost-sprinkler.service
 ```
