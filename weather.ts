@@ -57,9 +57,7 @@ loop(async () => {
     });
     state = { on: false };
   }
-
-  await sleep(60 * 1000);
-});
+}, 60 * 1000);
 
 function durationMs(ms: number) {
   const minutes = Math.round(ms / 1000 / 60);
@@ -70,13 +68,14 @@ function durationMs(ms: number) {
   return `${hours}h${remainder}m`;
 }
 
-async function loop(fn: () => void) {
+async function loop(fn: () => void, delayMs: number) {
   while (true) {
     try {
       await fn();
     } catch (error) {
       console.error(error);
     }
+    await sleep(delayMs);
   }
 }
 
