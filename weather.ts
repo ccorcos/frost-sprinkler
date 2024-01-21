@@ -4,6 +4,16 @@ if (!process.env.EMAIL_KEY)
   throw new Error("Missing EMAIL_KEY environment variable.");
 const key = process.env.EMAIL_KEY;
 
+// "https://chet-email.web.val.run"
+if (!process.env.EMAIL_URL)
+  throw new Error("Missing EMAIL_URL environment variable.");
+const emailUrl = process.env.EMAIL_URL;
+
+// "http://weatherlinklive-719e35.local/v1/current_conditions"
+if (!process.env.WEATHERLINK_URL)
+  throw new Error("Missing WEATHERLINK_URL environment variable.");
+const weatherlinkUrl = process.env.WEATHERLINK_URL;
+
 const onBelowF = 57;
 const offAboveF = 58;
 
@@ -73,7 +83,7 @@ async function loop(fn: () => void) {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function sendEmail(args: { subject: string; text: string }) {
-  const url = new URL("https://chet-email.web.val.run");
+  const url = new URL(emailUrl);
   url.searchParams.set("key", key);
   url.searchParams.set("subject", args.subject);
   url.searchParams.set("text", args.text);
@@ -83,9 +93,7 @@ async function sendEmail(args: { subject: string; text: string }) {
 }
 
 async function getWeather() {
-  const response = await fetch(
-    "http://weatherlinklive-719e35.local/v1/current_conditions"
-  );
+  const response = await fetch(weatherlinkUrl);
   const data: WeatherlinkResponse = await response.json();
   const weather = data.data.conditions.find(
     (data) => data.data_structure_type === 1
