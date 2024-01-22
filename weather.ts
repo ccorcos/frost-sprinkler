@@ -14,6 +14,11 @@ if (!process.env.WEATHERLINK_URL)
   throw new Error("Missing WEATHERLINK_URL environment variable.");
 const weatherlinkUrl = process.env.WEATHERLINK_URL;
 
+// "http://192.168.1.79/cm?pw=XXX&sid=23"
+if (!process.env.OPENSPRINKLER_URL)
+  throw new Error("Missing OPENSPRINKLER_URL environment variable.");
+const openSprinklerUrl = process.env.OPENSPRINKLER_URL;
+
 const onBelowF = 57;
 const offAboveF = 58;
 
@@ -39,6 +44,7 @@ loop(async () => {
       subject: `Frost Sprinklers`,
       text: "Turning on " + new Date().toLocaleString(),
     });
+    await runSprinkler(60 * 2); // two minutes
   }
 
   if (state.on) {
@@ -47,15 +53,17 @@ loop(async () => {
 
   if (state.on && weather.temp >= offAboveF) {
     console.log("Turning off.");
+    const oldState = state;
+    state = { on: false };
     await sendEmail({
       subject: `Frost Sprinklers`,
       text: [
         "Turning off " + new Date().toLocaleString(),
-        `duration: ${durationMs(Date.now() - state.startMs)}`,
-        `min temp: ${state.minF}°F`,
+        `duration: ${durationMs(Date.now() - oldState.startMs)}`,
+        `min temp: ${oldState.minF}°F`,
       ].join("\n"),
     });
-    state = { on: false };
+    await runSprinkler(0); // off
   }
 }, 60 * 1000);
 
@@ -80,6 +88,17 @@ async function loop(fn: () => void, delayMs: number) {
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function runSprinkler(timeS: number) {
+  const url = new URL(openSprinklerUrl);
+  if (timeS >= 1) {
+    url.searchParams.set("en", "1");
+    url.searchParams.set("t", timeS.toString());
+  } else {
+    url.searchParams.set("en", "0");
+  }
+  await fetch(url);
+}
 
 async function sendEmail(args: { subject: string; text: string }) {
   const url = new URL(emailUrl);
