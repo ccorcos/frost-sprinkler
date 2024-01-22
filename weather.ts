@@ -44,7 +44,9 @@ loop(async () => {
       subject: `Frost Sprinklers`,
       text: "Turning on " + new Date().toLocaleString(),
     });
-    await runSprinkler(60 * 2); // two minutes
+    const MinuteS = 60;
+    const HourS = 60 * MinuteS;
+    await runSprinkler(8 * HourS); // maximum of 8 hours
   }
 
   if (state.on) {
@@ -106,8 +108,10 @@ async function sendEmail(args: { subject: string; text: string }) {
   url.searchParams.set("subject", args.subject);
   url.searchParams.set("text", args.text);
   const response = await fetch(url);
-  const { error } = await response.json();
-  if (error) throw new Error("Email was not sent! " + error);
+  const result = await response.json();
+  if (result.error)
+    throw new Error("Email was not sent! " + JSON.stringify(result));
+  else console.log("Email sent!");
 }
 
 async function getWeather() {
