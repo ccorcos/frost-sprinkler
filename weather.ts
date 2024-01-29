@@ -19,8 +19,17 @@ if (!process.env.OPENSPRINKLER_URL)
   throw new Error("Missing OPENSPRINKLER_URL environment variable.");
 const openSprinklerUrl = process.env.OPENSPRINKLER_URL;
 
-const onBelowF = 57;
-const offAboveF = 58;
+if (!process.env.ON_BELOW_F)
+  throw new Error("Missing ON_BELOW_F environment variable.");
+
+const onBelowF = parseInt(process.env.ON_BELOW_F);
+if (isNaN(onBelowF))
+  throw new Error("ON_BELOW_F environment variable should be a number");
+const offAboveF = onBelowF + 1;
+
+console.log("Starting...");
+console.log("onBelowF:", onBelowF);
+console.log("offAboveF:", offAboveF);
 
 type OnState = {
   on: true;
